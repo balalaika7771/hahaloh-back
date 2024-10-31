@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t balalaika7771/backend:latest .
+          docker build -t balalaika7771/hahaloh-back:latest .
 
       - name: Push Docker image
         run: |
