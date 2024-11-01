@@ -28,6 +28,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Extract short SHA
+        id: vars
+        run: echo "::set-output name=short_sha::${GITHUB_SHA::7}"
+
+      - name: Build Docker image
+        run: |
+          docker build -t balalaika7771/hahaloh-back:${{ steps.vars.outputs.short_sha }} .
+
+      - name: Push Docker image
+        run: |
+          docker push balalaika7771/hahaloh-back:${{ steps.vars.outputs.short_sha }}
+
       - name: Build Docker image
         run: |
           docker build -t balalaika7771/hahaloh-back:latest .
