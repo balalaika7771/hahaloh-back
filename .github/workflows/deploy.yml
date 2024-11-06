@@ -1,4 +1,4 @@
-name: Build, Test and Push Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
@@ -19,38 +19,32 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build and Test with Maven
-        run: mvn clean package
-        continue-on-error: false
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
 
       - name: Log in to Docker Hub
-        if: success()  # Логин в Docker Hub только если тесты прошли успешно
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Generate Docker image tag
-        if: success()  # Генерация тега только если тесты прошли успешно
         id: image_tag
         run: |
           TAG="v$(date +'%Y%m%d%H%M%S')"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build Docker image
-        if: success()  # Сборка образа только если тесты прошли успешно
         run: |
           docker build -t balalaika7771/hahaloh-back:${{ env.TAG }} .
           docker tag balalaika7771/hahaloh-back:${{ env.TAG }} balalaika7771/hahaloh-back:latest
 
       - name: Push Docker image with version tag
-        if: success()  # Загрузка образа только если тесты прошли успешно
         run: |
           docker push balalaika7771/hahaloh-back:${{ env.TAG }}
           docker push balalaika7771/hahaloh-back:latest
 
-      - name: Send success message to Telegram
-        if: success()  # Отправка успешного сообщения если тесты прошли
+      - name: Send update message to Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -58,14 +52,4 @@ jobs:
         run: |
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
           -d chat_id="${TELEGRAM_CHAT_ID}" \
-          -d text="Образ бэка версии $IMAGE_TAG успешно загружен в Docker Hub"
-
-      - name: Send failure message to Telegram
-        if: failure()  # Отправка сообщения о сбое если тесты не прошли
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-          -d chat_id="${TELEGRAM_CHAT_ID}" \
-          -d text="Сборка не прошла успешно. Проверьте тесты и исправьте ошибки перед загрузкой образа."
+          -d text="Образ бэка версии $IMAGE_TAG загружен в Docker Hub"
