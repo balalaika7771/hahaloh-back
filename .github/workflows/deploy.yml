@@ -19,55 +19,38 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-
-      - name: Start PostgreSQL Container
-        run: |
-          docker run --name test-postgres -e POSTGRES_DB=testdb -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres:14.2
-        env:
-          POSTGRES_CONTAINER_ID: $(docker ps -aqf "name=test-postgres")
-
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until docker exec ${POSTGRES_CONTAINER_ID} pg_isready -U user -d testdb; do
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
-
       - name: Build and Test with Maven
-        run: mvn clean test -X -Dspring.profiles.active=test
+        run: mvn clean package
+        continue-on-error: false
 
       - name: Log in to Docker Hub
-        if: success()
+        if: success()  # Логин в Docker Hub только если тесты прошли успешно
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Generate Docker image tag
-        if: success()
+        if: success()  # Генерация тега только если тесты прошли успешно
         id: image_tag
         run: |
           TAG="v$(date +'%Y%m%d%H%M%S')"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
       - name: Build Docker image
-        if: success()
+        if: success()  # Сборка образа только если тесты прошли успешно
         run: |
           docker build -t balalaika7771/hahaloh-back:${{ env.TAG }} .
           docker tag balalaika7771/hahaloh-back:${{ env.TAG }} balalaika7771/hahaloh-back:latest
 
       - name: Push Docker image with version tag
-        if: success()
+        if: success()  # Загрузка образа только если тесты прошли успешно
         run: |
           docker push balalaika7771/hahaloh-back:${{ env.TAG }}
           docker push balalaika7771/hahaloh-back:latest
 
       - name: Send success message to Telegram
-        if: success()
+        if: success()  # Отправка успешного сообщения если тесты прошли
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -78,7 +61,7 @@ jobs:
           -d text="Образ бэка версии $IMAGE_TAG успешно загружен в Docker Hub"
 
       - name: Send failure message to Telegram
-        if: failure()
+        if: failure()  # Отправка сообщения о сбое если тесты не прошли
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
