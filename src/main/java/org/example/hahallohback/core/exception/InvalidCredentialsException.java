@@ -1,6 +1,5 @@
 package org.example.hahallohback.core.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
