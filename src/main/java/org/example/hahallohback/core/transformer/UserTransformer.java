@@ -12,6 +12,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 @Mapper(componentModel = SPRING)
 public interface UserTransformer extends Transformer<UserDto, User> {
 
+  @Mapping(target = "password", ignore = true)
   @Mapping(source = "id", target = "id")
   UserDto entityToDto(User product);
 

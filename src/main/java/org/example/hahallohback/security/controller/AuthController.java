@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.example.hahallohback.core.dto.UserDto;
 import org.example.hahallohback.core.entity.User;
 import org.example.hahallohback.core.exception.InvalidCredentialsException;
-import org.example.hahallohback.security.request.AuthRequest;
+import org.example.hahallohback.security.response.AuthResponse;
 import org.example.hahallohback.security.service.JwtService;
 import org.example.hahallohback.security.service.UserAuthService;
 import org.springframework.security.core.Authentication;
@@ -32,17 +32,28 @@ public class AuthController implements BaseController<UserDto, User> {
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
 
-  @Operation(summary = "Регистрация пользователя", description = "Создает нового пользователя с уникальным именем.")
+  @Operation(summary = "Регистрация пользователя", description = "Создает нового пользователя с уникальным именем и возвращает JWT-токен.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Пользователь успешно зарегистрирован"),
+      @ApiResponse(responseCode = "200", description = "Пользователь успешно зарегистрирован, возвращен JWT-токен"),
       @ApiResponse(responseCode = "400", description = "Ошибка валидации запроса")
   })
   @PostMapping("/register")
-  public UserDto register(
+  public AuthResponse register(
       @Parameter(description = "Данные пользователя для регистрации", required = true)
-      @RequestBody User user) {
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-    return svc().t().entityToDto(userService.saveUser(user));
+      @RequestBody UserDto userDto) {
+
+    var user = userService.findByUsername(userDto.getUsername());
+    if (user.isPresent()) {
+      throw new RuntimeException("Name exists");
+    }
+
+    // Кодируем пароль и сохраняем пользователя
+    userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+    User savedUser = userService.saveUser(svc().t().dtoToEntity(userDto));
+
+    // Генерируем JWT-токен для нового пользователя
+    String token = jwtService.generateToken(savedUser);
+    return new AuthResponse(token, savedUser.getUsername());
   }
 
   @Operation(summary = "Авторизация пользователя", description = "Авторизует пользователя и возвращает JWT-токен для последующего доступа.")
@@ -51,13 +62,17 @@ public class AuthController implements BaseController<UserDto, User> {
       @ApiResponse(responseCode = "401", description = "Неверные учетные данные")
   })
   @PostMapping("/login")
-  public String login(
+  public AuthResponse login(
       @Parameter(description = "Учетные данные пользователя для входа", required = true)
-      @RequestBody AuthRequest authRequest) {
-    User user = userService.findByUsername(authRequest.getUsername());
-    if (user != null && passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-      return jwtService.generateToken(user);
+      @RequestBody UserDto userDto) {
+
+    User user = userService.getByUsername(userDto.getUsername());
+    if (user != null && passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
+      // Генерируем JWT-токен для авторизованного пользователя
+      String token = jwtService.generateToken(user);
+      return new AuthResponse(token, user.getUsername());
     }
+
     throw new InvalidCredentialsException("Invalid credentials", 401);
   }
 
@@ -69,7 +84,8 @@ public class AuthController implements BaseController<UserDto, User> {
   @GetMapping("/who_am_i")
   public UserDto whoAmI(Authentication authentication) {
     String username = authentication.getName();
-    return userService.findByUsernameDto(username);
+    return userService.findByUsernameDto(username)
+        .orElseThrow(() -> new RuntimeException("User not found"));
   }
 
   @Override
@@ -77,3 +93,4 @@ public class AuthController implements BaseController<UserDto, User> {
     return userService;
   }
 }
+

@@ -14,4 +14,7 @@ public class UserDto extends IdentifiableDto<UserDto> {
 
   @NotNull
   private String username;
+
+  @NotNull
+  private String password;
 }

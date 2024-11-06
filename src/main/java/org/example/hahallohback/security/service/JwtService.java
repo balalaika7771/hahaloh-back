@@ -2,21 +2,28 @@ package org.example.hahallohback.security.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
+import jakarta.annotation.PostConstruct;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
 
-  // Секретный ключ для подписания токенов (замените на свой уникальный ключ)
-  private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+  private SecretKey SECRET_KEY;
 
+  private final String secret = "awdaasoifjaofosfajoasjhddsahsgflshgoiwioeghrweliurhgpwerjghwleiwergjhfyjyfghjgjfiwrehglwejkrglkwerjhglewuirghlweurhgdwad";
+
+
+  @PostConstruct
+  public void init() {
+    byte[] keyBytes = Base64.getDecoder().decode(secret);
+    SECRET_KEY = Keys.hmacShaKeyFor(keyBytes);
+  }
   // Метод для генерации токена
   public String generateToken(UserDetails userDetails) {
     return Jwts.builder()
@@ -35,7 +42,8 @@ public class JwtService {
   // Проверяем валидность токена
   public boolean validateToken(String token, UserDetails userDetails) {
     final String username = extractUsername(token);
-    return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    return username.equals(userDetails.getUsername()) &&
+        !isTokenExpired(token);
   }
 
   // Проверяем, истек ли токен

@@ -2,6 +2,7 @@ package org.example.hahallohback.security.config;
 
 import lombok.AllArgsConstructor;
 import org.example.hahallohback.security.CustomAuthenticationEntryPoint;
+import org.example.hahallohback.security.filter.JwtAuthenticationFilter;
 import org.example.hahallohback.security.provider.CustomAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +23,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,6 +39,8 @@ public class SecurityConfig {
         .exceptionHandling(exceptionHandling ->
             exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint) // Указываем кастомный AuthenticationEntryPoint
         );
+
+    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

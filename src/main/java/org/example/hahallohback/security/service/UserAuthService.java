@@ -2,6 +2,7 @@ package org.example.hahallohback.security.service;
 
 import base.service.abstractions.BaseJpaService;
 import base.transformer.Transformer;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.hahallohback.core.dto.UserDto;
 import org.example.hahallohback.core.entity.User;
@@ -31,12 +32,20 @@ public class UserAuthService implements UserDetailsService, BaseJpaService<UserD
         .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
   }
 
-  public User findByUsername(String username) {
+  public Optional<User> findByUsername(String username) {
+    return userRepository.findByUsername(username);
+  }
+
+  public Optional<UserDto> findByUsernameDto(String username) {
+    return t().entityToDto(userRepository.findByUsername(username));
+  }
+
+  public User getByUsername(String username) {
     return userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
   }
 
-  public UserDto findByUsernameDto(String username) {
+  public UserDto getByUsernameDto(String username) {
     return t().entityToDto(userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username)));
   }

@@ -19,4 +19,23 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="2" author="Ivan Zhendorenko">
+        <delete tableName="user">
+        </delete>
+    </changeSet>
+
+    <changeSet id="3" author="Ivan Zhendorenko">
+        <createTable tableName="app_user">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
