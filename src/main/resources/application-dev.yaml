@@ -6,3 +6,6 @@ spring:
     driverClassName: org.postgresql.Driver
     username: loh  # Имя пользователя, как в манифесте
     password: hahaloh  # Пароль, как в манифесте
+springdoc:
+  swagger-ui:
+    url: http://localhost:8080

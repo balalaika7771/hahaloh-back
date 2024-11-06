@@ -19,6 +19,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /api/doc-ui/
+    url: https://manatee-good-quagga.ngrok-free.app
   api-docs:
     enabled: true
 server:
