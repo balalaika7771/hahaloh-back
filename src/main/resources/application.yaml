@@ -16,12 +16,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-  doc:
-    swagger-ui:
-      path: /help
-    api-docs:
-      enabled: true
-
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
 server:
   servlet:
     session:
