@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: hahaloh-back
+  datasource:
+    url: jdbc:postgresql://192.168.194.149:5432/dev  # Укажите внешний IP-адрес машины
+    driverClassName: org.postgresql.Driver
+    username: loh  # Имя пользователя, как в манифесте
+    password: hahaloh  # Пароль, как в манифесте
+  sql:
+    init:
+      mode: always
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  jpa:
+    hibernate:
+      ddl-auto: none
+  doc:
+    swagger-ui:
+      path: /help  # Путь для Swagger UI
+    api-docs:
+      enabled: true
+
+server:
+  servlet:
+    session:
+      timeout: 5m
+
+spring.mvc:
+  async:
+    request-timeout: 60000
