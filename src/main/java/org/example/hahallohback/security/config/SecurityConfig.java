@@ -31,8 +31,8 @@ public class SecurityConfig {
     http
         .csrf(AbstractHttpConfigurer::disable) // Отключаем CSRF с использованием нового синтаксиса
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/swagger-ui/**").permitAll()
-            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/api/doc-ui/**").permitAll()
+            .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()// Разрешаем доступ к эндпоинтам авторизации
             .anyRequest().authenticated() // Остальные запросы требуют авторизации
         )
