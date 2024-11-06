@@ -9,21 +9,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:14.2
-        env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-        options: >-
-          --health-cmd="pg_isready -U user -d testdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-        ports:
-          - 5432:5432
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -34,9 +19,20 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
+      - name: Start PostgreSQL Container
+        run: |
+          docker run --name test-postgres -e POSTGRES_DB=testdb -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres:14.2
+        env:
+          POSTGRES_CONTAINER_ID: $(docker ps -aqf "name=test-postgres")
+
       - name: Wait for PostgreSQL to be ready
         run: |
-          until docker exec $(docker ps -qf "ancestor=postgres:14.2") pg_isready -U user -d testdb; do
+          until docker exec ${POSTGRES_CONTAINER_ID} pg_isready -U user -d testdb; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
