@@ -6,17 +6,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.Optional;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-public interface ReadController<D, E, I> extends BaseController<D, E> {
+
+public interface ReadController<D, E, I> extends BaseController<D, E>, SearchController<D, E, I> {
 
   /**
    * Сервис, используемый контроллером
@@ -30,24 +31,20 @@ public interface ReadController<D, E, I> extends BaseController<D, E> {
       description = "Поиск сущности по идентификатору",
       parameters = @Parameter(name = "id", description = "Идентификатор сущности", required = true)
   )
+  @PreAuthorize("hasPermission(#dummy, 'R') or hasPermission(#dummy, 'ADM')")
   @GetMapping("/find-by-id/{id}")
-  default ResponseEntity<D> findById(@PathVariable I id) {
-    return svc().findByIdDto(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+  default Optional<D> findById(@PathVariable I id, @Parameter(hidden = true) E dummy) {
+    return svc().findByIdDto(id);
   }
 
   @Operation(summary = "Поиск",
       description = "Поиск сущностей по идентификаторам",
       parameters = @Parameter(name = "ids", description = "Идентификаторы искомых сущностей в виде id1,id2,id3", required = true)
   )
+  @PreAuthorize("hasPermission(#dummy, 'R') or hasPermission(#dummy, 'ADM')")
   @GetMapping("/find-all-by-id")
-  default ResponseEntity<List<D>> findAllById(@RequestParam List<I> ids) {
-    List<D> results = svc().findAllByIdDto(ids);
-    if (results.isEmpty()) {
-      return ResponseEntity.noContent().build();  // Если список пуст, возвращаем 204 No Content
-    }
-    return ResponseEntity.ok(results);  // Если найдены, возвращаем 200 OK
+  default List<D> findAllById(@RequestParam List<I> ids, @Parameter(hidden = true) E dummy) {
+    return svc().findAllByIdDto(ids);
   }
 
   @Operation(summary = "Поиск сущностей с поддержкой пагинации",
@@ -60,8 +57,9 @@ public interface ReadController<D, E, I> extends BaseController<D, E> {
               """),
       }
   )
+  @PreAuthorize("hasPermission(#dummy, 'R') or hasPermission(#dummy, 'ADM')")
   @GetMapping("/find-all")
-  default Page<D> findAll(@Parameter(hidden = true) @ParameterObject @PageableDefault Pageable pageable) {
+  default Page<D> findAll(@Parameter(hidden = true) @ParameterObject @PageableDefault Pageable pageable, @Parameter(hidden = true) E dummy) {
     return svc().findAllDto(pageable);
   }
 }

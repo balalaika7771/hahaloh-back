@@ -3,6 +3,8 @@ package base.controller.crud.jpa;
 import base.controller.abstractions.BaseController;
 import base.service.jpa.CrudJpaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,8 +32,9 @@ public interface UpdateController<D, E, I> extends BaseController<D, E> {
           required = true
       )
   )
+  @PreAuthorize("hasPermission(#dummy, 'W') or hasPermission(#dummy, 'ADM')")
   @PatchMapping("/update")
-  default D update(@RequestBody D dto) {
+  default D update(@RequestBody D dto, @Parameter(hidden = true) E dummy) {
     var entity = svc().t().dtoToEntity(dto);
     return svc().updateDto(entity, e -> {
     });

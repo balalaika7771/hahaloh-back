@@ -19,7 +19,6 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /api/doc-ui/
-    url: https://manatee-good-quagga.ngrok-free.app
   api-docs:
     enabled: true
 server:
@@ -30,3 +29,6 @@ server:
 spring.mvc:
   async:
     request-timeout: 60000
+
+app:
+  server-url: https://manatee-good-quagga.ngrok-free.app

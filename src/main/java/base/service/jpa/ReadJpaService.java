@@ -1,13 +1,17 @@
 package base.service.jpa;
 
+import base.repository.JpaSpecificationExecutorRepository;
 import base.service.abstractions.BaseJpaService;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.FluentQuery;
 
 
@@ -21,6 +25,24 @@ import org.springframework.data.repository.query.FluentQuery;
  */
 public interface ReadJpaService<D, E, I> extends BaseJpaService<D, E, I> {
 
+
+  /**
+   * Репозиторий
+   *
+   * @return Репозиторий
+   */
+  @Override
+  JpaSpecificationExecutorRepository<E, I> repo();
+
+  /**
+   * Мапа для замены путей в сёрче для ситуаций, когда путь внутри дто отличается от пути внутри сущности
+   * <p>
+   *
+   * @return Полный путь или его часть для поиска в жсоне - путь для поиска в сущности (не должно быть transient-полей)
+   */
+  default Map<String, String> searchPathReplacer() {
+    return Map.of();
+  }
 
   // region entity
 
@@ -40,8 +62,20 @@ public interface ReadJpaService<D, E, I> extends BaseJpaService<D, E, I> {
     return repo().findAll(pageable);
   }
 
+  default List<E> findAll(Specification<E> spec) {
+    return repo().findAll(spec);
+  }
+
+  default Page<E> findAll(Specification<E> spec, Pageable pageable) {
+    return repo().findAll(spec, pageable);
+  }
+
   default <S extends E> Optional<S> findOne(Example<S> example) {
     return repo().findOne(example);
+  }
+
+  default Optional<E> findOne(Specification<E> spec) {
+    return repo().findOne(spec);
   }
 
   default <S extends E> Iterable<S> findAll(Example<S> example) {
@@ -86,6 +120,34 @@ public interface ReadJpaService<D, E, I> extends BaseJpaService<D, E, I> {
 
   default Page<D> findAllDto(Pageable pageable) {
     return t().entityToDtoPage(findAll(pageable)).map(this::enrich);
+  }
+
+  default List<D> findAllDto(Specification<E> spec) {
+    return t().entitiesToDtos(findAll(spec)).stream().map(this::enrich).toList();
+  }
+
+  default Page<D> findAllDto(Specification<E> spec, Pageable pageable) {
+    return t().entityToDtoPage(findAll(spec, pageable)).map(this::enrich);
+  }
+
+  default Optional<D> findOneDto(Specification<E> spec) {
+    return t().entityToDto(findOne(spec)).map(this::enrich);
+  }
+
+  default Optional<D> findOneDto(Example<E> example) {
+    return t().entityToDto(findOne(example)).map(this::enrich);
+  }
+
+  default Iterable<D> findAllDto(Example<E> example) {
+    return t().entitiesToDtos(IterableUtils.toList(findAll(example))).stream().map(this::enrich).toList();
+  }
+
+  default Iterable<D> findAllDto(Example<E> example, Sort sort) {
+    return t().entitiesToDtos(IterableUtils.toList(findAll(example, sort))).stream().map(this::enrich).toList();
+  }
+
+  default Page<D> findAllDto(Example<E> example, Pageable pageable) {
+    return t().entityToDtoPage(findAll(example, pageable)).map(this::enrich);
   }
 
   // endregion

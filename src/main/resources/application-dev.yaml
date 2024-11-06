@@ -2,10 +2,9 @@ spring:
   application:
     name: hahaloh-back
   datasource:
-    url: jdbc:postgresql://localhost:30007/dev  # Укажите внешний IP-адрес машины
+    url: jdbc:postgresql://localhost:30007/dev
     driverClassName: org.postgresql.Driver
     username: loh  # Имя пользователя, как в манифесте
     password: hahaloh  # Пароль, как в манифесте
-springdoc:
-  swagger-ui:
-    url: http://localhost:8080
+app:
+  server-url: http://localhost:8080
