@@ -53,7 +53,7 @@ public class AuthControllerTest {
   void loginUser() {
     // Сначала регистрируем пользователя
     webTestClient.post()
-        .uri("/auth/register")
+        .uri("/api/auth/register")
         .contentType(APPLICATION_JSON)
         .bodyValue(testUser)
         .exchange()
@@ -64,7 +64,7 @@ public class AuthControllerTest {
 
     // Проверяем авторизацию и получение токена
     webTestClient.post()
-        .uri("/auth/login")
+        .uri("/api/auth/login")
         .contentType(APPLICATION_JSON)
         .bodyValue(authRequest)
         .exchange()
@@ -76,7 +76,7 @@ public class AuthControllerTest {
         });
 
     String token = webTestClient.post()
-        .uri("/auth/login")
+        .uri("/api/auth/login")
         .contentType(APPLICATION_JSON)
         .bodyValue(authRequest)
         .exchange()
@@ -88,7 +88,7 @@ public class AuthControllerTest {
 
     // Используем полученный токен для вызова whoAmI
     webTestClient.get()
-        .uri("/auth/who_am_i")
+        .uri("/api/auth/who_am_i")
         .header("Authorization", "Bearer " + token)
         .exchange()
         .expectStatus().isOk()
