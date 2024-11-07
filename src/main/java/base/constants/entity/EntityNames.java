@@ -15,4 +15,8 @@ public class EntityNames {
 
   public static final String USER = "User";
 
+  public static final String PERMISSION = "Permission";
+
+  public static final String ROLE = "Role";
+
 }

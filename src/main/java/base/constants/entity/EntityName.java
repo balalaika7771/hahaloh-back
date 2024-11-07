@@ -14,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EntityName {
-  USER(EntityNames.USER, "user");
-
+  USER(EntityNames.USER, "user"),
+  ROLE(EntityNames.ROLE, "role"),
+  PERMISSION(EntityNames.PERMISSION, "permission");
 
   private final String name;
 

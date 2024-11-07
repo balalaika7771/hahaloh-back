@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @Testcontainers
-public class AuthControllerTest {
+class AuthControllerTest {
 
   @Container
   private static final PostgreSQLContainer<?> postgresContainer =
