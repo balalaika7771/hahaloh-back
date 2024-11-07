@@ -19,6 +19,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+
+
 @Entity
 @Getter
 @Setter
@@ -32,7 +35,7 @@ public class User extends Identifiable<User> implements UserDetails {
 
   private String password;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.EAGER, cascade = PERSIST)
   @JoinTable(
       name = "user_role",
       joinColumns = @JoinColumn(name = "user_id"),

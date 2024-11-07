@@ -107,47 +107,47 @@ public interface ReadJpaService<D, E, I> extends BaseJpaService<D, E, I> {
   // region dto
 
   default Optional<D> findByIdDto(I id) {
-    return t().entityToDto(findById(id)).map(this::enrich);
+    return t().entityToDto(findById(id)).map(this::enrichDto);
   }
 
   default List<D> findAllByIdDto(Iterable<I> ids) {
-    return t().entitiesToDtos(findAllById(ids)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAllById(ids)).stream().map(this::enrichDto).toList();
   }
 
   default List<D> findAllDto(Sort sort) {
-    return t().entitiesToDtos(findAll(sort)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAll(sort)).stream().map(this::enrichDto).toList();
   }
 
   default Page<D> findAllDto(Pageable pageable) {
-    return t().entityToDtoPage(findAll(pageable)).map(this::enrich);
+    return t().entityToDtoPage(findAll(pageable)).map(this::enrichDto);
   }
 
   default List<D> findAllDto(Specification<E> spec) {
-    return t().entitiesToDtos(findAll(spec)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAll(spec)).stream().map(this::enrichDto).toList();
   }
 
   default Page<D> findAllDto(Specification<E> spec, Pageable pageable) {
-    return t().entityToDtoPage(findAll(spec, pageable)).map(this::enrich);
+    return t().entityToDtoPage(findAll(spec, pageable)).map(this::enrichDto);
   }
 
   default Optional<D> findOneDto(Specification<E> spec) {
-    return t().entityToDto(findOne(spec)).map(this::enrich);
+    return t().entityToDto(findOne(spec)).map(this::enrichDto);
   }
 
   default Optional<D> findOneDto(Example<E> example) {
-    return t().entityToDto(findOne(example)).map(this::enrich);
+    return t().entityToDto(findOne(example)).map(this::enrichDto);
   }
 
   default Iterable<D> findAllDto(Example<E> example) {
-    return t().entitiesToDtos(IterableUtils.toList(findAll(example))).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(IterableUtils.toList(findAll(example))).stream().map(this::enrichDto).toList();
   }
 
   default Iterable<D> findAllDto(Example<E> example, Sort sort) {
-    return t().entitiesToDtos(IterableUtils.toList(findAll(example, sort))).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(IterableUtils.toList(findAll(example, sort))).stream().map(this::enrichDto).toList();
   }
 
   default Page<D> findAllDto(Example<E> example, Pageable pageable) {
-    return t().entityToDtoPage(findAll(example, pageable)).map(this::enrich);
+    return t().entityToDtoPage(findAll(example, pageable)).map(this::enrichDto);
   }
 
   // endregion

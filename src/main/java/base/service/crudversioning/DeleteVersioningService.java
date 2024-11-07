@@ -54,23 +54,23 @@ public interface DeleteVersioningService<D, E extends Versionable<E>, I> extends
   // region dto
 
   default D deleteByIdDto(I id) {
-    return enrich(t().entityToDto(deleteById(id)));
+    return enrichDto(t().entityToDto(deleteById(id)));
   }
 
   default D deleteDto(E entity) {
-    return enrich(t().entityToDto(delete(entity)));
+    return enrichDto(t().entityToDto(delete(entity)));
   }
 
   default List<D> deleteAllByIdDto(Iterable<I> ids) {
-    return t().entitiesToDtos(deleteAllById(ids)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(deleteAllById(ids)).stream().map(this::enrichDto).toList();
   }
 
   default List<D> deleteAllDto(Iterable<E> entities) {
-    return t().entitiesToDtos(deleteAll(entities)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(deleteAll(entities)).stream().map(this::enrichDto).toList();
   }
 
   default List<D> deleteAllDto() {
-    return t().entitiesToDtos(deleteAll()).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(deleteAll()).stream().map(this::enrichDto).toList();
   }
 
   // endregion

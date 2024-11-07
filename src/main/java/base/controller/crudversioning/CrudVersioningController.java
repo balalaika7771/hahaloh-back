@@ -39,7 +39,7 @@ public interface CrudVersioningController<D extends Versionable<D>, E extends Ve
   @PreAuthorize("hasPermission(#dummy, 'W') or hasPermission(#dummy, 'ADM')")
   @PostMapping("/save")
   default D save(@RequestBody D dto, @Parameter(hidden = true) E dummy) {
-    var entity = svc().t().dtoToEntity(dto);
+    var entity = svc().enrichEntity(svc().t().dtoToEntity(dto));
     return svc().saveDto(entity);
   }
 
@@ -67,7 +67,7 @@ public interface CrudVersioningController<D extends Versionable<D>, E extends Ve
   @PreAuthorize("hasPermission(#dummy, 'W') or hasPermission(#dummy, 'ADM')")
   @PatchMapping("/update")
   default D update(@RequestBody D dto, @Parameter(hidden = true) E dummy) {
-    var entity = svc().t().dtoToEntity(dto);
+    var entity = svc().enrichEntity(svc().t().dtoToEntity(dto));
     return svc().updateDto(entity, e -> {
     });
   }

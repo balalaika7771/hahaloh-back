@@ -34,7 +34,7 @@ public interface SingleCreateController<D, E, I> extends BaseController<D, E> {
   @PreAuthorize("hasPermission(#dummy, 'W') or hasPermission(#dummy, 'ADM')")
   @PostMapping("/save")
   default D save(@RequestBody D dto, @Parameter(hidden = true) E dummy) {
-    var entity = svc().t().dtoToEntity(dto);
+    var entity = svc().enrichEntity(svc().t().dtoToEntity(dto));
     return svc().saveDto(entity);
   }
 }

@@ -48,22 +48,22 @@ public interface UpdateJpaService<D, E, I> extends BaseJpaService<D, E, I> {
 
   @Transactional
   default D updateDto(E entity, Consumer<E> mutator) {
-    return enrich(t().entityToDto(update(entity, mutator)));
+    return enrichDto(t().entityToDto(update(entity, mutator)));
   }
 
   @Transactional
   default D updateAndFlushDto(E entity, Consumer<E> mutator) {
-    return enrich(t().entityToDto(updateAndFlush(entity, mutator)));
+    return enrichDto(t().entityToDto(updateAndFlush(entity, mutator)));
   }
 
   @Transactional
   default List<D> updateAllDto(Iterable<E> entities, Consumer<E> mutator) {
-    return t().entitiesToDtos(updateAll(entities, mutator)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(updateAll(entities, mutator)).stream().map(this::enrichDto).toList();
   }
 
   @Transactional
   default List<D> updateAllAndFlushDto(Iterable<E> entities, Consumer<E> mutator) {
-    return t().entitiesToDtos(updateAllAndFlush(entities, mutator)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(updateAllAndFlush(entities, mutator)).stream().map(this::enrichDto).toList();
   }
 
   //endregion

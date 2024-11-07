@@ -169,7 +169,7 @@
     <changeSet id="10" author="admin">
         <insert tableName="app_user">
             <column name="username" value="admin"/>
-            <column name="password" value="admin"/>
+            <column name="password" value="$2a$10$swnOAR2FQzzSZyrtkF0V7OCJMVY1QLPWgZ5nSOuGtrAteqN.yENw6"/>
         </insert>
     </changeSet>
 

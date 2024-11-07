@@ -28,4 +28,14 @@ public class UserService implements CrudJpaService<UserDto, User, Long> {
   public Transformer<UserDto, User> t() {
     return userTransformer;
   }
+
+  @Override
+  public User enrichEntity(User entity) {
+    if (entity.getId() != null && entity.getPassword() == null) {
+      userRepository.findById(entity.getId())
+          .ifPresent(existingUser -> entity.setPassword(existingUser.getPassword()));
+    }
+    return entity;
+  }
+
 }

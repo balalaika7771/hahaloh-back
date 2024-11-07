@@ -49,7 +49,7 @@ public class AuthController implements BaseController<UserDto, User> {
 
     // Кодируем пароль и сохраняем пользователя
     userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-    User savedUser = userService.saveUser(svc().t().dtoToEntity(userDto));
+    User savedUser = userService.saveUser(svc().enrichEntity(svc().t().dtoToEntity(userDto)));
 
     // Генерируем JWT-токен для нового пользователя
     String token = jwtService.generateToken(savedUser);

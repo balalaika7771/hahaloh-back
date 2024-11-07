@@ -26,7 +26,12 @@ public interface BaseService<D, E> {
    * @param dto dto
    * @return Обогащённая dto
    */
-  default D enrich(D dto) {
+  default D enrichDto(D dto) {
     return dto;
   }
+
+  default E enrichEntity(E entity) {
+    return entity;
+  }
+
 }

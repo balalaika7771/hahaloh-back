@@ -43,22 +43,22 @@ public interface CreateJpaService<D, E, I> extends BaseJpaService<D, E, I> {
 
   @Transactional
   default D saveDto(E entity) {
-    return enrich(t().entityToDto(save(entity)));
+    return enrichDto(t().entityToDto(save(entity)));
   }
 
   @Transactional
   default D saveAndFlushDto(E entity) {
-    return enrich(t().entityToDto(saveAndFlush(entity)));
+    return enrichDto(t().entityToDto(saveAndFlush(entity)));
   }
 
   @Transactional
   default List<D> saveAllDto(Iterable<E> entities) {
-    return t().entitiesToDtos(saveAll(entities)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(saveAll(entities)).stream().map(this::enrichDto).toList();
   }
 
   @Transactional
   default List<D> saveAllAndFlushDto(Iterable<E> entities) {
-    return t().entitiesToDtos(saveAllAndFlush(entities)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(saveAllAndFlush(entities)).stream().map(this::enrichDto).toList();
   }
 
   // endregion

@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static jakarta.persistence.CascadeType.PERSIST;
+
 
 @Entity
 @Getter
@@ -26,7 +28,7 @@ public class Role extends Identifiable<Role> {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.EAGER, cascade = PERSIST)
   @JoinTable(
       name = "role_permission",
       joinColumns = @JoinColumn(name = "role_id"),

@@ -141,37 +141,37 @@ public interface ReadVersioningService<D, E extends Versionable<E>, I> extends B
 
   @Override
   default Optional<D> findByIdDto(I id) {
-    return t().entityToDto(findById(id)).map(this::enrich);
+    return t().entityToDto(findById(id)).map(this::enrichDto);
   }
 
   @Override
   default List<D> findAllByIdDto(Iterable<I> ids) {
-    return t().entitiesToDtos(findAllById(ids)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAllById(ids)).stream().map(this::enrichDto).toList();
   }
 
   @Override
   default List<D> findAllDto(Sort sort) {
-    return t().entitiesToDtos(findAll(sort)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAll(sort)).stream().map(this::enrichDto).toList();
   }
 
   @Override
   default Page<D> findAllDto(Pageable pageable) {
-    return t().entityToDtoPage(findAll(pageable)).map(this::enrich);
+    return t().entityToDtoPage(findAll(pageable)).map(this::enrichDto);
   }
 
   @Override
   default List<D> findAllDto(Specification<E> spec) {
-    return t().entitiesToDtos(findAll(spec)).stream().map(this::enrich).toList();
+    return t().entitiesToDtos(findAll(spec)).stream().map(this::enrichDto).toList();
   }
 
   @Override
   default Page<D> findAllDto(Specification<E> spec, Pageable pageable) {
-    return t().entityToDtoPage(findAll(spec, pageable)).map(this::enrich);
+    return t().entityToDtoPage(findAll(spec, pageable)).map(this::enrichDto);
   }
 
   @Override
   default Optional<D> findOneDto(Specification<E> spec) {
-    return t().entityToDto(findOne(spec)).map(this::enrich);
+    return t().entityToDto(findOne(spec)).map(this::enrichDto);
   }
 
   /**
@@ -181,7 +181,7 @@ public interface ReadVersioningService<D, E extends Versionable<E>, I> extends B
    * @return Актуальная версия
    */
   default Optional<D> findActualByBranchIdDto(@lombok.NonNull Long branchId) {
-    return t().entityToDto(findActualByBranchId(branchId)).map(this::enrich);
+    return t().entityToDto(findActualByBranchId(branchId)).map(this::enrichDto);
   }
 
   // endregion

@@ -35,7 +35,7 @@ public interface UpdateController<D, E, I> extends BaseController<D, E> {
   @PreAuthorize("hasPermission(#dummy, 'W') or hasPermission(#dummy, 'ADM')")
   @PatchMapping("/update")
   default D update(@RequestBody D dto, @Parameter(hidden = true) E dummy) {
-    var entity = svc().t().dtoToEntity(dto);
+    var entity = svc().enrichEntity(svc().t().dtoToEntity(dto));
     return svc().updateDto(entity, e -> {
     });
   }
