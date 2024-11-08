@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +32,18 @@ public class OAuthController {
   private String redirectUri;
 
   private final RestTemplate restTemplate = new RestTemplate();
+  private final OAuthClassicController classicController;
+
+  public OAuthController(OAuthClassicController classicController) {
+    this.classicController = classicController;
+  }
 
   /**
-   * Обработка обратного вызова для обмена кода авторизации на токены.
-   * Использует полученный `code`, чтобы запросить `access_token` и `refresh_token`.
+   * Обработка callback для привязки аккаунта HeadHunter к существующему пользователю.
    *
-   * @param code Код авторизации, полученный от HeadHunter.
-   * @return Токены доступа и обновления.
+   * @param code Код авторизации от HeadHunter.
+   * @param state Параметр временного ключа, для сопоставления с пользователем.
+   * @return Подтверждение успешной привязки.
    */
   @Operation(
       summary = "Получение access_token и refresh_token",
@@ -46,33 +52,46 @@ public class OAuthController {
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Токены успешно получены"),
-      @ApiResponse(responseCode = "400", description = "Неверный код авторизации"),
+      @ApiResponse(responseCode = "400", description = "Недействительный код или ключ"),
       @ApiResponse(responseCode = "500", description = "Ошибка при получении токенов")
   })
   @GetMapping("/callback/hh")
   public ResponseEntity<String> callback(
       @Parameter(description = "Код авторизации, который был передан hh.ru на ваш `redirectUri`", required = true)
-      @RequestParam String code) {
+      @RequestParam String code,
+      @RequestParam String state) {
 
+    // Проверяем временный ключ (state) и получаем ID пользователя
+    Long currentUserId = classicController.getTemporaryAuthMap().remove(state);
+    if (currentUserId == null) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired state parameter.");
+    }
+
+    // Обмен кода авторизации на access_token
     String tokenUrl = "https://hh.ru/oauth/token";
-
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    HttpEntity<String> request = new HttpEntity<>(
-        "grant_type=authorization_code"
-            + "&client_id=" + clientId
-            + "&client_secret=" + clientSecret
-            + "&code=" + code
-            + "&redirect_uri=" + redirectUri,
-        headers
-    );
+    String requestBody = "grant_type=authorization_code"
+        + "&client_id=" + clientId
+        + "&client_secret=" + clientSecret
+        + "&code=" + code
+        + "&redirect_uri=" + redirectUri;
 
-    ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, Map.class);
+    HttpEntity<String> tokenRequest = new HttpEntity<>(requestBody, headers);
+    ResponseEntity<Map> tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenRequest, Map.class);
 
-    String accessToken = (String) response.getBody().get("access_token");
-    String refreshToken = (String) response.getBody().get("refresh_token");
+    if (!tokenResponse.getStatusCode().is2xxSuccessful() || !tokenResponse.hasBody()) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve tokens.");
+    }
 
-    return ResponseEntity.ok("Tokens received: Access Token - " + accessToken);
+    String accessToken = (String) tokenResponse.getBody().get("access_token");
+    String refreshToken = (String) tokenResponse.getBody().get("refresh_token");
+
+    // Привязка аккаунта HeadHunter к профилю пользователя в системе
+    // Используем currentUserId для привязки к пользователю
+    // Пример: userService.linkHeadHunterAccount(currentUserId, accessToken, refreshToken);
+
+    return ResponseEntity.ok("HeadHunter account linked successfully. Access Token - " + accessToken + " " + currentUserId);
   }
 }
