@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 public class UserAuthService implements UserDetailsService, BaseJpaService<UserDto, User, Long> {
 
   private final UserRepository userRepository;
-
   private final UserTransformer userTransformer;
 
   public User saveUser(User user) {

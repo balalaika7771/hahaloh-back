@@ -3,6 +3,7 @@ package org.example.hahallohback.core.service;
 import base.repository.JpaSpecificationExecutorRepository;
 import base.service.jpa.CrudJpaService;
 import base.transformer.Transformer;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.hahallohback.core.dto.RoleDto;
 import org.example.hahallohback.core.entity.Role;
@@ -27,5 +28,9 @@ public class RoleService implements CrudJpaService<RoleDto, Role, Long> {
   @Override
   public Transformer<RoleDto, Role> t() {
     return roleTransformer;
+  }
+
+  public Optional<Role> findByName(String name) {
+    return roleRepository.findByName(name);
   }
 }
