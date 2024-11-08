@@ -4,13 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import java.net.URI;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
 
 @RestController
 @RequestMapping("/api/oauth")
@@ -35,25 +32,13 @@ public class OAuthController {
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  @Operation(
-      summary = "Перенаправление на страницу авторизации HeadHunter",
-      description = "Этот метод направляет пользователя на страницу hh.ru для авторизации. "
-          + "Пользователь предоставляет разрешение, и HeadHunter перенаправляет его обратно на ваш `redirectUri` с параметром `code`, который нужен для получения токенов."
-  )
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "302", description = "Пользователь перенаправлен на страницу авторизации HeadHunter"),
-      @ApiResponse(responseCode = "500", description = "Ошибка при генерации URL для авторизации")
-  })
-  @GetMapping("/authorize/hh")
-  public ResponseEntity<Void> authorize() {
-    String authUrl = "https://hh.ru/oauth/authorize"
-        + "?response_type=code&client_id=" + clientId
-        + "&redirect_uri=" + redirectUri;
-    HttpHeaders headers = new HttpHeaders();
-    headers.setLocation(URI.create(authUrl));
-    return new ResponseEntity<>(headers, HttpStatus.FOUND);
-  }
-
+  /**
+   * Обработка обратного вызова для обмена кода авторизации на токены.
+   * Использует полученный `code`, чтобы запросить `access_token` и `refresh_token`.
+   *
+   * @param code Код авторизации, полученный от HeadHunter.
+   * @return Токены доступа и обновления.
+   */
   @Operation(
       summary = "Получение access_token и refresh_token",
       description = "Метод обрабатывает `callback` от hh.ru после авторизации. "
@@ -91,5 +76,3 @@ public class OAuthController {
     return ResponseEntity.ok("Tokens received: Access Token - " + accessToken);
   }
 }
-
-
