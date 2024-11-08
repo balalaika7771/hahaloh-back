@@ -4,20 +4,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.net.URI;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-@Controller
+
+@RestController
 @RequestMapping("/api/oauth")
 public class OAuthController {
 
@@ -32,13 +35,6 @@ public class OAuthController {
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  /**
-   * Метод перенаправляет пользователя на страницу авторизации HeadHunter.
-   * Пользователь должен разрешить доступ, после чего он будет перенаправлен
-   * обратно на указанный `redirectUri` с параметром `code`.
-   *
-   * @return URL для перенаправления на страницу авторизации hh.ru.
-   */
   @Operation(
       summary = "Перенаправление на страницу авторизации HeadHunter",
       description = "Этот метод направляет пользователя на страницу hh.ru для авторизации. "
@@ -49,20 +45,15 @@ public class OAuthController {
       @ApiResponse(responseCode = "500", description = "Ошибка при генерации URL для авторизации")
   })
   @GetMapping("/authorize/hh")
-  public String authorize() {
+  public ResponseEntity<Void> authorize() {
     String authUrl = "https://hh.ru/oauth/authorize"
         + "?response_type=code&client_id=" + clientId
         + "&redirect_uri=" + redirectUri;
-    return "redirect:" + authUrl;
+    HttpHeaders headers = new HttpHeaders();
+    headers.setLocation(URI.create(authUrl));
+    return new ResponseEntity<>(headers, HttpStatus.FOUND);
   }
 
-  /**
-   * Метод обрабатывает редирект от HeadHunter и получает `access_token` и `refresh_token`.
-   * Использует код авторизации (`code`), чтобы обменять его на токены через API hh.ru.
-   *
-   * @param code Временный код авторизации, полученный от HeadHunter (параметр запроса).
-   * @return Ответ с `access_token` и `refresh_token`.
-   */
   @Operation(
       summary = "Получение access_token и refresh_token",
       description = "Метод обрабатывает `callback` от hh.ru после авторизации. "
@@ -78,14 +69,11 @@ public class OAuthController {
       @Parameter(description = "Код авторизации, который был передан hh.ru на ваш `redirectUri`", required = true)
       @RequestParam String code) {
 
-    // Формируем URL для обмена кода авторизации на токен
     String tokenUrl = "https://hh.ru/oauth/token";
 
-    // Заголовки запроса для POST-запроса на получение токенов
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-    // Тело запроса с параметрами
     HttpEntity<String> request = new HttpEntity<>(
         "grant_type=authorization_code"
             + "&client_id=" + clientId
@@ -95,15 +83,13 @@ public class OAuthController {
         headers
     );
 
-    // Выполняем запрос и получаем токены
     ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, Map.class);
 
-    // Извлекаем токены из ответа
     String accessToken = (String) response.getBody().get("access_token");
     String refreshToken = (String) response.getBody().get("refresh_token");
 
-    // Возвращаем токены в ответе
     return ResponseEntity.ok("Tokens received: Access Token - " + accessToken);
   }
 }
+
 
