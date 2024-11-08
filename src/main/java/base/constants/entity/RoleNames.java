@@ -12,9 +12,7 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @NoArgsConstructor(access = PRIVATE)
 public class RoleNames {
-
   public static final String ADMIN = "admin";
 
   public static final String USER = "User";
-
 }

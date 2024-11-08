@@ -4,8 +4,8 @@ spring:
   datasource:
     url: jdbc:postgresql://postgres:5432/dev
     driverClassName: org.postgresql.Driver
-    username: loh
-    password: hahaloh
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   sql:
     init:
       mode: always
@@ -32,3 +32,15 @@ spring.mvc:
 
 app:
   server-url: https://manatee-good-quagga.ngrok-free.app
+
+hh:
+  client-id: ${HH_CLIENT_ID}
+  client-secret: ${HH_CLIENT_SECRET}
+  redirect-uri: "https://manatee-good-quagga.ngrok-free.app/api/oauth/callback/hh"
+  authorization-grant-type: authorization_code
+  scope: "basic"
+  client-name: HeadHunter
+  authorization-uri: https://hh.ru/oauth/authorize
+  token-uri: https://hh.ru/oauth/token
+  user-info-uri: https://api.hh.ru/me
+  user-name-attribute: id
