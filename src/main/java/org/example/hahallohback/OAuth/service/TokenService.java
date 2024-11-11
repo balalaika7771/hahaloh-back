@@ -11,8 +11,11 @@ import org.example.hahallohback.core.entity.User;
 import org.example.hahallohback.core.entity.UserState;
 import org.example.hahallohback.core.repository.UserStateRepository;
 import org.example.hahallohback.core.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
@@ -25,6 +28,10 @@ public class TokenService {
   private final WebClient.Builder webClientBuilder;
   private final UserService userService;
 
+  @Autowired
+  @Lazy
+  private TokenService self;
+
   @Value("${hh.client-id}")
   private String clientId;
 
@@ -36,6 +43,7 @@ public class TokenService {
 
   private static final String HH_TOKEN_URL = "https://hh.ru/oauth/token";
 
+  @Transactional
   public void storeState(Long userId, String state) {
     UserState userState = new UserState();
     userState.setState(state);
@@ -46,6 +54,7 @@ public class TokenService {
     userStateRepository.save(userState);
   }
 
+  @Transactional
   public Long retrieveUserIdByState(String state) {
     UserState userState = userStateRepository.findByState(state)
         .orElseThrow(() -> new RuntimeException("Состояние не найдено!"));
@@ -54,6 +63,7 @@ public class TokenService {
     return userId;
   }
 
+  @Transactional
   public boolean exchangeCodeForTokens(Long userId, String code) {
     WebClient webClient = webClientBuilder.build();
 
@@ -63,7 +73,7 @@ public class TokenService {
         + "&code=" + code
         + "&redirect_uri=" + redirectUri;
 
-    Map<String, Object> tokenResponse = webClient.post()
+    var tokenResponse = webClient.post()
         .uri(HH_TOKEN_URL)
         .header("Content-Type", "application/x-www-form-urlencoded")
         .bodyValue(requestBody)
@@ -81,10 +91,11 @@ public class TokenService {
 
     User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
 
-    saveTokens(user, accessToken, refreshToken, expiresIn);
+    self.saveTokens(user, accessToken, refreshToken, expiresIn);
     return true;
   }
 
+  @Transactional
   public void saveTokens(User user, String accessToken, String refreshToken, int expiresInSeconds) {
     UserToken userToken = userTokenRepository.findByUserAndTokenType(user, TokenType.HH)
         .orElse(new UserToken());
