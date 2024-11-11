@@ -79,23 +79,22 @@ public class OAuthController {
       @ApiResponse(responseCode = "500", description = "Ошибка при получении токенов")
   })
   @GetMapping("/callback/hh")
-  public ResponseEntity<Void> callback(
-      @Parameter(description = "Код авторизации от hh.ru", required = true) @RequestParam String code,
-      @Parameter(description = "State для проверки подлинности", required = true) @RequestParam String state) {
+  public ResponseEntity<String> callback(
+      @Parameter(description = "Код авторизации, который был передан hh.ru на ваш `redirectUri`", required = true)
+      @RequestParam String code,
+      @RequestParam String state) {
 
-    Long currentUserId = tokenService.retrieveUserIdByState(state);
-    if (currentUserId == null) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    Long userId = tokenService.retrieveUserIdByState(state);
+    if (userId == null) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired state parameter.");
     }
 
-    // Обмен кода авторизации на токены
-    boolean success = tokenService.exchangeCodeForTokens(currentUserId, code);
-    if (!success) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    boolean isTokenSaved = tokenService.exchangeCodeForTokens(userId, code);
+    if (!isTokenSaved) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve tokens.");
     }
 
-    // Перенаправление в личный кабинет
-    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/api/doc-ui/")).build();
+    return ResponseEntity.ok("HeadHunter account linked successfully.");
   }
 
   // Метод для получения ID текущего пользователя из сессии или токена

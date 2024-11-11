@@ -11,13 +11,10 @@ import org.example.hahallohback.core.entity.User;
 import org.example.hahallohback.core.entity.UserState;
 import org.example.hahallohback.core.repository.UserStateRepository;
 import org.example.hahallohback.core.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +24,6 @@ public class TokenService {
   private final UserStateRepository userStateRepository;
   private final WebClient.Builder webClientBuilder;
   private final UserService userService;
-
-  @Autowired
-  @Lazy
-  private TokenService self;
 
   @Value("${hh.client-id}")
   private String clientId;
@@ -57,9 +50,9 @@ public class TokenService {
   @Transactional
   public Long retrieveUserIdByState(String state) {
     UserState userState = userStateRepository.findByState(state)
-        .orElseThrow(() -> new RuntimeException("Состояние не найдено!"));
+        .orElseThrow(() -> new RuntimeException("State not found!"));
     Long userId = userState.getUserId();
-    userStateRepository.deleteByState(state); // Удаляем state после использования
+    userStateRepository.delete(userState); // Удаляем state после использования
     return userId;
   }
 
@@ -67,16 +60,14 @@ public class TokenService {
   public boolean exchangeCodeForTokens(Long userId, String code) {
     WebClient webClient = webClientBuilder.build();
 
-    String requestBody = "grant_type=authorization_code"
-        + "&client_id=" + clientId
-        + "&client_secret=" + clientSecret
-        + "&code=" + code
-        + "&redirect_uri=" + redirectUri;
-
     var tokenResponse = webClient.post()
         .uri(HH_TOKEN_URL)
         .header("Content-Type", "application/x-www-form-urlencoded")
-        .bodyValue(requestBody)
+        .bodyValue("grant_type=authorization_code" +
+            "&client_id=" + clientId +
+            "&client_secret=" + clientSecret +
+            "&code=" + code +
+            "&redirect_uri=" + redirectUri)
         .retrieve()
         .bodyToMono(Map.class)
         .block();
@@ -89,9 +80,9 @@ public class TokenService {
     String refreshToken = (String) tokenResponse.get("refresh_token");
     int expiresIn = (Integer) tokenResponse.get("expires_in");
 
-    User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
+    User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 
-    self.saveTokens(user, accessToken, refreshToken, expiresIn);
+    saveTokens(user, accessToken, refreshToken, expiresIn);
     return true;
   }
 
