@@ -94,7 +94,8 @@ public class OAuthController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve tokens.");
     }
 
-    return ResponseEntity.ok("HeadHunter account linked successfully.");
+    // Перенаправление в личный кабинет
+    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/api/doc-ui/")).build();
   }
 
   // Метод для получения ID текущего пользователя из сессии или токена
