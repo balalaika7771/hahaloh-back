@@ -8,5 +8,6 @@
 
     <include file="changeSet/2024-11-06-create-user-table.xml" relativeToChangelogFile="true"/>
     <include file="changeSet/2024-11-08-create-user-table.xml" relativeToChangelogFile="true"/>
+    <include file="changeSet/2024-11-11-create-user_tokens-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -15,6 +15,7 @@ import org.example.hahallohback.core.dto.UserDto;
 import org.example.hahallohback.core.entity.User;
 import org.example.hahallohback.core.exception.InvalidCredentialsException;
 import org.example.hahallohback.core.service.RoleService;
+import org.example.hahallohback.security.request.AuthRequest;
 import org.example.hahallohback.security.response.AuthResponse;
 import org.example.hahallohback.security.service.JwtService;
 import org.example.hahallohback.security.service.UserAuthService;
@@ -47,7 +48,9 @@ public class AuthController implements BaseController<UserDto, User> {
   @PostMapping("/register")
   public AuthResponse register(
       @Parameter(description = "Данные пользователя для регистрации", required = true)
-      @RequestBody UserDto userDto) {
+      @RequestBody AuthRequest authRequest) {
+
+    var userDto = authRequest.toUserDto();
 
     var user = userAuthService.findByUsername(userDto.getUsername());
     if (user.isPresent()) {
@@ -72,7 +75,9 @@ public class AuthController implements BaseController<UserDto, User> {
   @PostMapping("/login")
   public AuthResponse login(
       @Parameter(description = "Учетные данные пользователя для входа", required = true)
-      @RequestBody UserDto userDto) {
+      @RequestBody AuthRequest authRequest) {
+
+    var userDto = authRequest.toUserDto();
 
     User user = userAuthService.getByUsername(userDto.getUsername());
     if (user != null && passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {

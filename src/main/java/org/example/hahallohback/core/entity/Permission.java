@@ -24,9 +24,9 @@ public class Permission extends Identifiable<Permission> {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private EntityName entityName;  // Используем EntityName вместо EntityType
+  private EntityName entityName;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private AccessLevel accessLevel;  // Используем AccessLevel для уровня доступа
+  private AccessLevel accessLevel;
 }

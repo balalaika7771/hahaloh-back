@@ -1,6 +1,6 @@
 package org.example.hahallohback;
 
-import org.example.hahallohback.core.dto.UserDto;
+import org.example.hahallohback.security.request.AuthRequest;
 import org.example.hahallohback.security.response.AuthResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,11 +42,11 @@ class AuthControllerTest {
     registry.add("spring.datasource.password", postgresContainer::getPassword);
   }
 
-  private UserDto testUser;
+  private AuthRequest testUser;
 
   @BeforeEach
   void setUp() {
-    testUser = new UserDto("testuser", "testpassword");
+    testUser = new AuthRequest("testuser", "testpassword");
   }
 
   @Test
@@ -60,7 +60,7 @@ class AuthControllerTest {
         .expectStatus().isOk();
 
     // Создаем запрос авторизации
-    UserDto authRequest = new UserDto("testuser", "testpassword");
+    AuthRequest authRequest = new AuthRequest("testuser", "testpassword");
 
     // Проверяем авторизацию и получение токена
     webTestClient.post()
@@ -92,8 +92,8 @@ class AuthControllerTest {
         .header("Authorization", "Bearer " + token)
         .exchange()
         .expectStatus().isOk()
-        .expectBody(UserDto.class)
-        .value(userDto -> assertThat(userDto.getUsername()).isEqualTo("testuser"));
+        .expectBody(AuthRequest.class)
+        .value(userDto -> assertThat(userDto.username()).isEqualTo("testuser"));
   }
 
 }
