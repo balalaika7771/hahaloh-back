@@ -95,7 +95,7 @@ public class OAuthController {
     }
 
     // Перенаправление в личный кабинет
-    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/user/dashboard")).build();
+    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/api/doc-ui/")).build();
   }
 
   // Метод для получения ID текущего пользователя из сессии или токена
