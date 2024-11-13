@@ -35,7 +35,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/api/doc-ui/**").permitAll()
             .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/oauth/callback/*").permitAll()
+            .requestMatchers("/api/oauth/*").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()// Разрешаем доступ к эндпоинтам авторизации
             .anyRequest().authenticated() // Остальные запросы требуют авторизации
         )

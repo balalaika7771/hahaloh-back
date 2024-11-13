@@ -1,5 +1,7 @@
 package org.example.hahallohback.OAuth.controller;
 
+import base.constants.entity.StateType;
+import base.controller.abstractions.OAuthControllerInterface;
 import base.util.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,7 +12,8 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.example.hahallohback.OAuth.service.TokenService;
+import org.example.hahallohback.OAuth.service.UserStateService;
+import org.example.hahallohback.OAuth.service.UserTokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,11 +23,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @Controller
-@RequestMapping("/api/oauth")
+@RequestMapping("/api/oauth/hh")
 @RequiredArgsConstructor
-public class OAuthController {
+public class OAuthController implements OAuthControllerInterface {
 
   @Value("${hh.client-id}")
   private String clientId;
@@ -32,19 +34,19 @@ public class OAuthController {
   @Value("${hh.redirect-uri}")
   private String redirectUri;
 
-  private final TokenService tokenService;
+  private final UserTokenService userTokenService;
+  private final UserStateService userStateService;
 
   /**
-   * Перенаправление на страницу авторизации HeadHunter.
-   * Пользователь должен предоставить разрешение, и HeadHunter затем перенаправит его
-   * обратно на указанный redirectUri с параметром `code`.
+   * Перенаправление на страницу авторизации внешнего сервиса.
    */
+  @Override
   @Operation(summary = "Перенаправление на страницу авторизации HeadHunter")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "302", description = "Пользователь перенаправлен на страницу авторизации HeadHunter"),
       @ApiResponse(responseCode = "500", description = "Ошибка при генерации URL для авторизации")
   })
-  @GetMapping("/authorize/hh")
+  @GetMapping("/authorize")
   public ResponseEntity<Void> authorize(HttpServletRequest request) {
     Long currentUserId = getCurrentUserId();
     if (currentUserId == null) {
@@ -52,7 +54,7 @@ public class OAuthController {
     }
 
     String state = UUID.randomUUID().toString();
-    tokenService.storeState(currentUserId, state);
+    userStateService.storeState(currentUserId, state, StateType.OAUTH_HH);
 
     // Формируем URL для авторизации
     String authUrl = "https://hh.ru/oauth/authorize"
@@ -66,30 +68,27 @@ public class OAuthController {
   }
 
   /**
-   * Обработка callback для привязки аккаунта HeadHunter к существующему пользователю.
-   *
-   * @param code Код авторизации от HeadHunter.
-   * @param state Параметр временного ключа для проверки.
-   * @return Подтверждение успешной привязки.
+   * Обработка callback для привязки аккаунта после авторизации.
    */
+  @Override
   @Operation(summary = "Получение access_token и refresh_token")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Токены успешно получены"),
       @ApiResponse(responseCode = "400", description = "Недействительный код или ключ"),
       @ApiResponse(responseCode = "500", description = "Ошибка при получении токенов")
   })
-  @GetMapping("/callback/hh")
+  @GetMapping("/callback")
   public ResponseEntity<String> callback(
       @Parameter(description = "Код авторизации, который был передан hh.ru на ваш `redirectUri`", required = true)
       @RequestParam String code,
       @RequestParam String state) {
 
-    Long userId = tokenService.retrieveUserIdByState(state);
+    Long userId = userStateService.retrieveUserIdByState(state);
     if (userId == null) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired state parameter.");
     }
 
-    boolean isTokenSaved = tokenService.exchangeCodeForTokens(userId, code);
+    boolean isTokenSaved = userTokenService.exchangeCodeForTokens(userId, code);
     if (!isTokenSaved) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve tokens.");
     }
@@ -103,4 +102,3 @@ public class OAuthController {
     return Objects.requireNonNull(Auth.getCurrentUser()).getId();
   }
 }
-

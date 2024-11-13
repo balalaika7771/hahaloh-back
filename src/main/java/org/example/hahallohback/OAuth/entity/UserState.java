@@ -1,13 +1,11 @@
-package org.example.hahallohback.core.entity;
+package org.example.hahallohback.OAuth.entity;
 
+import base.abstractions.Identifiable;
 import base.constants.entity.StateType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -22,11 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user_state")
-public class UserState {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class UserState extends Identifiable<UserState> {
 
   @Column(name = "state", nullable = false, unique = true)
   private String state;

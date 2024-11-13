@@ -45,7 +45,8 @@ public class User extends Identifiable<User> implements UserDetails {
   )
   private Set<Role> roles;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @JoinColumn(name = "user_id")
   private Set<UserToken> userTokens;
 
   @Override

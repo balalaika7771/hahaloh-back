@@ -2,7 +2,7 @@ package org.example.hahallohback.core.repository;
 
 
 import java.util.Optional;
-import org.example.hahallohback.core.entity.UserState;
+import org.example.hahallohback.OAuth.entity.UserState;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
