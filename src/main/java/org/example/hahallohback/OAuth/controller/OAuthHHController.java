@@ -1,7 +1,7 @@
 package org.example.hahallohback.OAuth.controller;
 
 import base.constants.entity.StateType;
-import base.controller.abstractions.OAuthControllerInterface;
+import base.controller.abstractions.OAuthController;
 import base.util.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/api/oauth/hh")
 @RequiredArgsConstructor
-public class OAuthController implements OAuthControllerInterface {
+public class OAuthHHController implements OAuthController {
 
   @Value("${hh.client-id}")
   private String clientId;
