@@ -22,12 +22,6 @@ public class UserTokenService implements BaseJpaService<UserTokenDto, UserToken,
 
   private final UserTokenTransformer userTokenTransformer;
 
-
-
-
-
-
-
   @Transactional
   public void saveTokens(Long userId, Token token) {
     UserToken userToken = userTokenRepository.findByUserIdAndTokenType(userId, TokenType.HH)

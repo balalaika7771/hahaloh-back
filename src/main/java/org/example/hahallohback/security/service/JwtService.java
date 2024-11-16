@@ -8,15 +8,20 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
+
+@RequiredArgsConstructor
 public class JwtService {
 
   private SecretKey SECRET_KEY;
 
-  private final String secret = "awdaasoifjaofosfajoasjhddsahsgflshgoiwioeghrweliurhgpwerjghwleiwergjhfyjyfghjgjfiwrehglwejkrglkwerjhglewuirghlweurhgdwad";
+  @Value("${app.jwt-secret}")
+  private String secret;
 
 
   @PostConstruct
