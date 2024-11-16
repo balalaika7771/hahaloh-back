@@ -2,6 +2,7 @@ package org.example.hahallohback.OAuth.entity;
 
 
 import base.abstractions.Identifiable;
+import base.abstractions.Token;
 import base.constants.entity.TokenType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user_tokens")
-public class UserToken extends Identifiable<UserToken> {
+public class UserToken extends Identifiable<UserToken> implements Token {
 
   @Column(name = "user_id", nullable = false)
   private Long userId;

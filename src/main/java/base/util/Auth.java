@@ -2,7 +2,7 @@ package base.util;
 
 import base.model.JwtAuthentication;
 import lombok.NoArgsConstructor;
-import org.example.hahallohback.core.entity.User;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -34,11 +34,11 @@ public class Auth {
     return (JwtAuthentication) getContext().getAuthentication();
   }
 
-  public static User getCurrentUser() {
+  public static @Nullable Object getCurrentUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.getPrincipal() instanceof User) {
-      return (User) authentication.getPrincipal();
+    if (authentication != null) {
+      return authentication.getPrincipal();
     }
-    return null; // или выбросить исключение, если пользователь не найден
+    return null;
   }
 }

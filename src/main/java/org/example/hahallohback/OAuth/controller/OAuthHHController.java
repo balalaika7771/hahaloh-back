@@ -1,104 +1,24 @@
 package org.example.hahallohback.OAuth.controller;
 
-import base.constants.entity.StateType;
 import base.controller.abstractions.OAuthController;
-import base.util.Auth;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.util.Objects;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.example.hahallohback.OAuth.service.UserStateService;
-import org.example.hahallohback.OAuth.service.UserTokenService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import base.service.abstractions.OAuthService;
+import lombok.AllArgsConstructor;
+import org.example.hahallohback.OAuth.service.OAuthHHService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/api/oauth/hh")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class OAuthHHController implements OAuthController {
 
-  @Value("${hh.client-id}")
-  private String clientId;
-
-  @Value("${hh.redirect-uri}")
-  private String redirectUri;
-
-  private final UserTokenService userTokenService;
-  private final UserStateService userStateService;
-
-  /**
-   * Перенаправление на страницу авторизации внешнего сервиса.
-   */
+  private final OAuthHHService oAuthHHService;
   @Override
-  @Operation(summary = "Перенаправление на страницу авторизации HeadHunter")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "302", description = "Пользователь перенаправлен на страницу авторизации HeadHunter"),
-      @ApiResponse(responseCode = "500", description = "Ошибка при генерации URL для авторизации")
-  })
-  @GetMapping("/authorize")
-  public ResponseEntity<Void> authorize(HttpServletRequest request) {
-    Long currentUserId = getCurrentUserId();
-    if (currentUserId == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    String state = UUID.randomUUID().toString();
-    userStateService.storeState(currentUserId, state, StateType.OAUTH_HH);
-
-    // Формируем URL для авторизации
-    String authUrl = "https://hh.ru/oauth/authorize"
-        + "?response_type=code&client_id=" + clientId
-        + "&redirect_uri=" + redirectUri
-        + "&state=" + state;
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setLocation(URI.create(authUrl));
-    return new ResponseEntity<>(headers, HttpStatus.FOUND);
+  public OAuthService svc() {
+    return oAuthHHService;
   }
 
-  /**
-   * Обработка callback для привязки аккаунта после авторизации.
-   */
-  @Override
-  @Operation(summary = "Получение access_token и refresh_token")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Токены успешно получены"),
-      @ApiResponse(responseCode = "400", description = "Недействительный код или ключ"),
-      @ApiResponse(responseCode = "500", description = "Ошибка при получении токенов")
-  })
-  @GetMapping("/callback")
-  public ResponseEntity<String> callback(
-      @Parameter(description = "Код авторизации, который был передан hh.ru на ваш `redirectUri`", required = true)
-      @RequestParam String code,
-      @RequestParam String state) {
 
-    Long userId = userStateService.retrieveUserIdByState(state);
-    if (userId == null) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired state parameter.");
-    }
 
-    boolean isTokenSaved = userTokenService.exchangeCodeForTokens(userId, code);
-    if (!isTokenSaved) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve tokens.");
-    }
 
-    // Перенаправление в личный кабинет
-    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/api/doc-ui/")).build();
-  }
-
-  // Метод для получения ID текущего пользователя из сессии или токена
-  private Long getCurrentUserId() {
-    return Objects.requireNonNull(Auth.getCurrentUser()).getId();
-  }
 }

@@ -14,7 +14,7 @@ import static base.constants.entity.EntityNames.ROLE;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(ROLE)
+@RequestMapping("api/" + ROLE)
 public class RoleController implements CrudController<RoleDto, Role, Long> {
 
   private final RoleService roleService;

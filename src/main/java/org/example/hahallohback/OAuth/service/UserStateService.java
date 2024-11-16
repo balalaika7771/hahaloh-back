@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.example.hahallohback.OAuth.entity.UserState;
 import org.example.hahallohback.core.repository.UserStateRepository;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class UserStateService {
   }
 
   @Transactional
-  public Long retrieveUserIdByState(String state) {
+  public @Nullable Long retrieveUserIdByState(String state) {
     UserState userState = userStateRepository.findByState(state)
         .orElseThrow(() -> new RuntimeException("State not found!"));
     Long userId = userState.getUserId();

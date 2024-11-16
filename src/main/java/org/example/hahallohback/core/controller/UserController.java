@@ -14,7 +14,7 @@ import static base.constants.entity.EntityNames.USER;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(USER)
+@RequestMapping("api/" + USER)
 public class UserController implements CrudController<UserDto, User, Long> {
 
   private final UserService userService;
