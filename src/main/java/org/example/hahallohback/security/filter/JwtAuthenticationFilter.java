@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.example.hahallohback.security.service.JwtService;
 import org.example.hahallohback.security.service.UserAuthService;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 
 @Component
+@Order(2) // Указываем порядок фильтра
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
